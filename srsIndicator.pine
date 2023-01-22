@@ -1,0 +1,152 @@
+// This source code is subject to the terms of the Mozilla Public License 2.0 at https://mozilla.org/MPL/2.0/
+// © Forex_Associate (Abbas Borji)
+
+//@version=5
+indicator('Stochastic RSI Screener', overlay=true)
+
+
+
+////////////
+// Inputs //
+
+candle = input(close, title='Candle State')
+rsi_len = input.int(14, title = "RSI Length",     group = 'Stochastic RSI')
+rsi_os  = input.float(30, title = "RSI Overbought", group = 'Stochastic RSI')
+rsi_ob  = input.float(70, title = "RSI Oversold",   group = 'Stochastic RSI')
+smoothKD = input.int(3, 'K & D  Smoothing', minval=1, group='Stochastic RSI')
+lengthStoch = input.int(14, 'Stochastic Length', minval=1, group='Stochastic RSI')
+stoch_low = input.int(20, title='Stoch Oversold Level', group='Stochastic RSI')
+stoch_high = input.int(80, title='Stoch Overbought Level', group='Stochastic RSI')
+
+// Flags & Symbols
+u01 = input.bool(true,  title = "", group = 'Symbols', inline = 's01')
+u02 = input.bool(true,  title = "", group = 'Symbols', inline = 's02')
+u03 = input.bool(true,  title = "", group = 'Symbols', inline = 's03')
+u04 = input.bool(true,  title = "", group = 'Symbols', inline = 's04')
+u05 = input.bool(true,  title = "", group = 'Symbols', inline = 's05')
+
+s01 = input.symbol('EURUSD',  group = 'Symbols', inline = 's01')
+s02 = input.symbol('GBPUSD',  group = 'Symbols', inline = 's02')
+s03 = input.symbol('AUDUSD', group = 'Symbols', inline = 's03')
+s04 = input.symbol('USDJPY',  group = 'Symbols', inline = 's04')
+s05 = input.symbol('USDCAD',  group = 'Symbols', inline = 's05')
+
+
+
+//////////////////
+// Functions //
+
+// Get Only Symbol
+only_symbol(symbol) => 
+    array.get(str.split(symbol, ":"), 1)
+
+// Calculations
+calculate() =>
+    
+    rsi = ta.rsi(candle, rsi_len)
+    k_value = ta.sma(ta.stoch(rsi, rsi, rsi, lengthStoch), smoothKD)
+    d_value =  ta.sma(k_value, smoothKD)
+    [math.round_to_mintick(candle), rsi, k_value, d_value]
+
+
+
+////////////
+// Security Calls //
+
+[candle01, rsi01, k01, d01] = request.security(s01, timeframe.period, calculate())
+[candle02, rsi02, k02, d02] = request.security(s02, timeframe.period, calculate())
+[candle03, rsi03, k03, d03] = request.security(s03, timeframe.period, calculate())
+[candle04, rsi04, k04, d04] = request.security(s04, timeframe.period, calculate())
+[candle05, rsi05, k05, d05] = request.security(s05, timeframe.period, calculate())
+
+////////////
+// Arrays //
+
+s_arr   = array.new_string(0)
+u_arr   = array.new_bool(0)
+candle_arr  = array.new_float(0)
+rsi_arr = array.new_float(0)
+k_arr = array.new_float(0)
+d_arr = array.new_float(0)
+
+///////////
+// Symbols //
+
+array.push(s_arr, only_symbol(s01))
+array.push(s_arr, only_symbol(s02))
+array.push(s_arr, only_symbol(s03))
+array.push(s_arr, only_symbol(s04))
+array.push(s_arr, only_symbol(s05))
+
+///////////
+// Flags //
+
+array.push(u_arr, u01)
+array.push(u_arr, u02)
+array.push(u_arr, u03)
+array.push(u_arr, u04)
+array.push(u_arr, u05)
+
+///////////
+// Candle Values //
+
+array.push(candle_arr, candle01)
+array.push(candle_arr, candle02)
+array.push(candle_arr, candle03)
+array.push(candle_arr, candle04)
+array.push(candle_arr, candle05)
+
+/////////
+// RSI Values//
+
+array.push(rsi_arr, rsi01)
+array.push(rsi_arr, rsi02)
+array.push(rsi_arr, rsi03)
+array.push(rsi_arr, rsi04)
+array.push(rsi_arr, rsi05)
+
+/////////
+// K Values //
+
+array.push(k_arr, k01)
+array.push(k_arr, k02)
+array.push(k_arr, k03)
+array.push(k_arr, k04)
+array.push(k_arr, k05)
+
+/////////
+// D Values //
+
+array.push(d_arr, d01)
+array.push(d_arr, d02)
+array.push(d_arr, d03)
+array.push(d_arr, d04)
+array.push(d_arr, d05)
+
+
+
+///////////
+// Table //
+
+var tbl = table.new(position.top_right, 5, 6, frame_color=color.navy, frame_width=1, border_width=2, border_color=color.new(color.white, 100))
+
+if barstate.islast
+
+    table.cell(tbl, 0, 0, 'Symbol',     text_halign = text.align_center, bgcolor = color.navy, text_color = color.white, text_size = size.small)
+    table.cell(tbl, 1, 0, 'Price',      text_halign = text.align_center, bgcolor = color.navy, text_color = color.white, text_size = size.small)
+    table.cell(tbl, 2, 0, 'RSI',        text_halign = text.align_center, bgcolor = color.navy, text_color = color.white, text_size = size.small)
+    table.cell(tbl, 3, 0, 'K Value',        text_halign = text.align_center, bgcolor = color.navy, text_color = color.white, text_size = size.small)
+    table.cell(tbl, 4, 0, 'D Value',        text_halign = text.align_center, bgcolor = color.navy, text_color = color.white, text_size = size.small)
+
+    for i = 0 to 4
+        if array.get(u_arr, i)
+        
+            rsi_col  = array.get(rsi_arr, i) > rsi_ob    ? color.red   : array.get(rsi_arr, i) < rsi_os ? color.green : #aaaaaa
+            k_col  = array.get(k_arr, i) > stoch_high    ? color.red   : array.get(k_arr, i) < stoch_low ? color.green : #aaaaaa
+            d_col  = array.get(d_arr, i) > stoch_high    ? color.red   : array.get(d_arr, i) < stoch_low ? color.green : #aaaaaa
+            
+            table.cell(tbl, 0, i + 1, array.get(s_arr, i),                                 text_halign = text.align_left,   bgcolor = #FFA500, text_color = color.navy, text_size = size.small)
+            table.cell(tbl, 1, i + 1, str.tostring(array.get(candle_arr, i)),                  text_halign = text.align_center, bgcolor = #aaaaaa,    text_color = color.white, text_size = size.small)
+            table.cell(tbl, 2, i + 1, str.tostring(array.get(rsi_arr, i), "#.##"),         text_halign = text.align_center, bgcolor = rsi_col,    text_color = color.white, text_size = size.small)
+            table.cell(tbl, 3, i + 1, str.tostring(array.get(k_arr, i), "#.##"),         text_halign = text.align_center, bgcolor = k_col,    text_color = color.white, text_size = size.small)
+            table.cell(tbl, 4, i + 1, str.tostring(array.get(d_arr, i), "#.##"),         text_halign = text.align_center, bgcolor = d_col,    text_color = color.white, text_size = size.small)
