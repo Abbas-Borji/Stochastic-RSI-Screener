@@ -1,12 +1,12 @@
 # Stochastic RSI Screener
 
-In the above srsIndicator.pine file you'll find the source code for a Stochastic RSI Screener built as an indicator for TradingView.
+This screener is built as an indicator for TradingView platform using Pine Script Version 5.
 
-This indicator can be applied to any chart.
+This indicator can be applied on any instrument.
 
-It gives users the ability to choose 5 specific symbols to watch and then specify the required options to change the RSI and Stochastic settings in a way that fits their needs.
+It gives users the ability to choose 5 specific symbols (the number is optional) and 3 timeframes to watch and then specify the required options to change the RSI and Stochastic settings in a way that fits their needs.
 
-This screener shows the values of (CURRENT PRICE, RSI , K-VALUE, D-VALUE) for each one of the specified symbols. It will do the calculations based on the currently opened timeframe for all symbols.
+This script shows values of (CURRENT PRICE, RSI , K-VALUE, D-VALUE) for each one of the specified symbols on each of the chosen timeframes.
 
 # Screener on Chart
 ![alt text](https://github.com/Abbas-Borji/Stochastic-RSI-Screener/blob/main/Screenshots/Five%20Symbols%20Three%20TimeFrames%20(Design-Enhanced).png?raw=true)
