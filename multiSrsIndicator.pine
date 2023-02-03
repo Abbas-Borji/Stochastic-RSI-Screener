@@ -1,23 +1,13 @@
+
 // This source code is subject to the terms of the Mozilla Public License 2.0 at https://mozilla.org/MPL/2.0/
 // © Forex_Associate (Abbas Borji)
 
 //@version=5
-indicator('Multi Timeframe Stochastic RSI Screener', overlay=true)
+indicator('Stochastic RSI Screener', overlay=true)
 
-////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 // Inputs //
 
-// Symbol, Flags, and Timeframes
-symbol = input.symbol('EURUSD',  group = 'Symbol')
-
-t01 = input.bool(true,  title = "", group = 'Timeframes', inline = 'tf1')
-t02 = input.bool(true,  title = "", group = 'Timeframes', inline = 'tf2')
-t03 = input.bool(true,  title = "", group = 'Timeframes', inline = 'tf3')
-
-tf1 = input.timeframe(title='Timeframe 1', defval='15', group='Timeframes', inline = 'tf1')
-tf2 = input.timeframe(title='Timeframe 2', defval='30', group='Timeframes', inline = 'tf2')
-tf3 = input.timeframe(title='Timeframe 3', defval='180', group='Timeframes', inline = 'tf3')
-////////////////////////////////////////////////////////////////////////////////////////////
 candle = input(close, title='Candle State')
 rsi_len = input.int(14, title = "RSI Length",     group = 'Stochastic RSI')
 rsi_os  = input.float(30, title = "RSI Overbought", group = 'Stochastic RSI')
@@ -27,7 +17,25 @@ lengthStoch = input.int(14, 'Stochastic Length', minval=1, group='Stochastic RSI
 stoch_low = input.int(20, title='Stoch Oversold Level', group='Stochastic RSI')
 stoch_high = input.int(80, title='Stoch Overbought Level', group='Stochastic RSI')
 
-//////////////////
+// Flags, Symbols, and Timeframes
+sb01 = input.bool(true,  title = "", group = 'Symbols', inline = 's01')
+sb02 = input.bool(true,  title = "", group = 'Symbols', inline = 's02')
+sb03 = input.bool(true,  title = "", group = 'Symbols', inline = 's03')
+sb04 = input.bool(true,  title = "", group = 'Symbols', inline = 's04')
+sb05 = input.bool(true,  title = "", group = 'Symbols', inline = 's05')
+
+s01 = input.symbol('EURUSD',  group = 'Symbols', inline = 's01')
+s02 = input.symbol('GBPUSD',  group = 'Symbols', inline = 's02')
+s03 = input.symbol('AUDUSD', group = 'Symbols', inline = 's03')
+s04 = input.symbol('USDJPY',  group = 'Symbols', inline = 's04')
+s05 = input.symbol('USDCAD',  group = 'Symbols', inline = 's05')
+
+t01 = input.timeframe(title='Timeframe 1', defval='15', group='Timeframes', inline = 't01')
+t02 = input.timeframe(title='Timeframe 2', defval='30', group='Timeframes', inline = 't02')
+t03 = input.timeframe(title='Timeframe 3', defval='180', group='Timeframes', inline = 't03')
+
+
+////////////////////////////////////////////////////////////////////////////////////////////
 // Functions //
 
 // Get Only Symbol
@@ -42,104 +50,212 @@ calculate() =>
     d_value =  ta.sma(k_value, smoothKD)
     [math.round_to_mintick(candle), rsi, k_value, d_value]
 
-////////////
-// Security Calls //
+transform(t) =>
+    str = ""
+    if str.contains(t,"60")
+        str := "1H"
+    else if str.contains(t,"120")
+        str := "2H"
+    else if str.contains(t,"180")
+        str := "3H"
+    else if str.contains(t,"240")
+        str := "4H"
+    else if str.contains(t,"720")
+        str := "12H"
+    else
+        str:= t
+    str
 
-[candle01, rsi01, k01, d01] = request.security(symbol, tf1, calculate())
-[candle02, rsi02, k02, d02] = request.security(symbol, tf2, calculate())
-[candle03, rsi03, k03, d03] = request.security(symbol, tf3, calculate())
+////////////////////////////////////////////////////////////////////////////////////////////
+// Creating Main Arrays //
 
-////////////
-// Arrays //
-
-tfs   = array.new_string(0)
-t_arr   = array.new_bool(0)
-candle_arr  = array.new_float(0)
+s_arr = array.new_string(0)
+sb_arr = array.new_bool(0)
+t_arr = array.new_string(0)
+p_arr  = array.new_float(0)
 rsi_arr = array.new_float(0)
 k_arr = array.new_float(0)
 d_arr = array.new_float(0)
-stringSymbol = only_symbol(symbol)
 
-///////////
-// Timeframes //
-
-array.push(tfs, tf1)
-array.push(tfs, tf2)
-array.push(tfs, tf3)
-
-
-///////////
-// Flags //
+////////////////////////////////////////////////////////////////////////////////////////////
+// Timeframe and Flag Arrays //
 
 array.push(t_arr, t01)
 array.push(t_arr, t02)
 array.push(t_arr, t03)
+array.push(t_arr, t01)
+array.push(t_arr, t02)
+array.push(t_arr, t03)
+array.push(t_arr, t01)
+array.push(t_arr, t02)
+array.push(t_arr, t03)
+array.push(t_arr, t01)
+array.push(t_arr, t02)
+array.push(t_arr, t03)
+array.push(t_arr, t01)
+array.push(t_arr, t02)
+array.push(t_arr, t03)
 
-///////////
-// Candle Values //
+////////////////////////////////////////////////////////////////////////////////////////////
+// Security Calls //
 
-array.push(candle_arr, candle01)
-array.push(candle_arr, candle02)
-array.push(candle_arr, candle03)
+[p011, rsi011, k011, d011] = request.security(s01 , t01, calculate())
+[p012, rsi012, k012, d012] = request.security(s01 , t02, calculate())
+[p013, rsi013, k013, d013] = request.security(s01 , t03, calculate())
+[p021, rsi021, k021, d021] = request.security(s02 , t01, calculate())
+[p022, rsi022, k022, d022] = request.security(s02 , t02, calculate())
+[p023, rsi023, k023, d023] = request.security(s02 , t03, calculate())
+[p031, rsi031, k031, d031] = request.security(s03 , t01, calculate())
+[p032, rsi032, k032, d032] = request.security(s03 , t02, calculate())
+[p033, rsi033, k033, d033] = request.security(s03 , t03, calculate())
+[p041, rsi041, k041, d041] = request.security(s04 , t01, calculate())
+[p042, rsi042, k042, d042] = request.security(s04 , t02, calculate())
+[p043, rsi043, k043, d043] = request.security(s04 , t03, calculate())
+[p051, rsi051, k051, d051] = request.security(s05 , t01, calculate())
+[p052, rsi052, k052, d052] = request.security(s05 , t02, calculate())
+[p053, rsi053, k053, d053] = request.security(s05 , t03, calculate())
 
-/////////
-// RSI Values//
+////////////////////////////////////////////////////////////////////////////////////////////
+// Symbol-Flag Array //
 
-array.push(rsi_arr, rsi01)
-array.push(rsi_arr, rsi02)
-array.push(rsi_arr, rsi03)
+array.push(sb_arr, sb01)
+array.push(sb_arr, sb01)
+array.push(sb_arr, sb01)
+array.push(sb_arr, sb02)
+array.push(sb_arr, sb02)
+array.push(sb_arr, sb02)
+array.push(sb_arr, sb03)
+array.push(sb_arr, sb03)
+array.push(sb_arr, sb03)
+array.push(sb_arr, sb04)
+array.push(sb_arr, sb04)
+array.push(sb_arr, sb04)
+array.push(sb_arr, sb05)
+array.push(sb_arr, sb05)
+array.push(sb_arr, sb05)
 
-/////////
-// K Values //
+////////////////////////////////////////////////////////////////////////////////////////////
+// Symbol Array //
 
-array.push(k_arr, k01)
-array.push(k_arr, k02)
-array.push(k_arr, k03)
+array.push(s_arr, only_symbol(s01))
+array.push(s_arr, only_symbol(s01))
+array.push(s_arr, only_symbol(s01))
+array.push(s_arr, only_symbol(s02))
+array.push(s_arr, only_symbol(s02))
+array.push(s_arr, only_symbol(s02))
+array.push(s_arr, only_symbol(s03))
+array.push(s_arr, only_symbol(s03))
+array.push(s_arr, only_symbol(s03))
+array.push(s_arr, only_symbol(s04))
+array.push(s_arr, only_symbol(s04))
+array.push(s_arr, only_symbol(s04))
+array.push(s_arr, only_symbol(s05))
+array.push(s_arr, only_symbol(s05))
+array.push(s_arr, only_symbol(s05))
 
-/////////
-// D Values //
+////////////////////////////////////////////////////////////////////////////////////////////
+// Price Array //
 
-array.push(d_arr, d01)
-array.push(d_arr, d02)
-array.push(d_arr, d03)
+array.push(p_arr, p011)
+array.push(p_arr, p012)
+array.push(p_arr, p013)
+array.push(p_arr, p021)
+array.push(p_arr, p022)
+array.push(p_arr, p023)
+array.push(p_arr, p031)
+array.push(p_arr, p032)
+array.push(p_arr, p033)
+array.push(p_arr, p041)
+array.push(p_arr, p042)
+array.push(p_arr, p043)
+array.push(p_arr, p051)
+array.push(p_arr, p052)
+array.push(p_arr, p053)
 
+////////////////////////////////////////////////////////////////////////////////////////////
+// RSI Array //
 
+array.push(rsi_arr, rsi011)
+array.push(rsi_arr, rsi012)
+array.push(rsi_arr, rsi013)
+array.push(rsi_arr, rsi021)
+array.push(rsi_arr, rsi022)
+array.push(rsi_arr, rsi023)
+array.push(rsi_arr, rsi031)
+array.push(rsi_arr, rsi032)
+array.push(rsi_arr, rsi033)
+array.push(rsi_arr, rsi041)
+array.push(rsi_arr, rsi042)
+array.push(rsi_arr, rsi043)
+array.push(rsi_arr, rsi051)
+array.push(rsi_arr, rsi052)
+array.push(rsi_arr, rsi053)
 
-///////////
+////////////////////////////////////////////////////////////////////////////////////////////
+// K Values Array //
+
+array.push(k_arr, k011)
+array.push(k_arr, k012)
+array.push(k_arr, k013)
+array.push(k_arr, k021)
+array.push(k_arr, k022)
+array.push(k_arr, k023)
+array.push(k_arr, k031)
+array.push(k_arr, k032)
+array.push(k_arr, k033)
+array.push(k_arr, k041)
+array.push(k_arr, k042)
+array.push(k_arr, k043)
+array.push(k_arr, k051)
+array.push(k_arr, k052)
+array.push(k_arr, k053)
+
+////////////////////////////////////////////////////////////////////////////////////////////
+// D Values Array //
+
+array.push(d_arr, d011)
+array.push(d_arr, d012)
+array.push(d_arr, d013)
+array.push(d_arr, d021)
+array.push(d_arr, d022)
+array.push(d_arr, d023)
+array.push(d_arr, d031)
+array.push(d_arr, d032)
+array.push(d_arr, d033)
+array.push(d_arr, d041)
+array.push(d_arr, d042)
+array.push(d_arr, d043)
+array.push(d_arr, d051)
+array.push(d_arr, d052)
+array.push(d_arr, d053)
+
+////////////////////////////////////////////////////////////////////////////////////////////
 // Table //
-
-var tbl = table.new(position.top_right, 5, 5, frame_color=color.navy, frame_width=1, border_width=2, border_color=color.new(color.white, 100))
+var tbl = table.new(position.top_right, 6, 16, frame_color=color.navy, frame_width=1, border_width=2, border_color=color.new(color.white, 100))
 
 if barstate.islast
 
-    table.cell(tbl, 0, 0, stringSymbol,              text_halign = text.align_center, bgcolor = color.navy, text_color = color.white, text_size = size.small)
-    table.merge_cells(tbl,0,0,4,0)
-    table.cell(tbl, 0, 1, 'Symbol',     text_halign = text.align_center, bgcolor = color.navy, text_color = color.white, text_size = size.small)
-    table.cell(tbl, 1, 1, 'Price',      text_halign = text.align_center, bgcolor = color.navy, text_color = color.white, text_size = size.small)
-    table.cell(tbl, 2, 1, 'RSI',        text_halign = text.align_center, bgcolor = color.navy, text_color = color.white, text_size = size.small)
-    table.cell(tbl, 3, 1, 'K Value',        text_halign = text.align_center, bgcolor = color.navy, text_color = color.white, text_size = size.small)
-    table.cell(tbl, 4, 1, 'D Value',        text_halign = text.align_center, bgcolor = color.navy, text_color = color.white, text_size = size.small)
+    table.cell(tbl, 0, 0, 'Symbol',                         text_halign = text.align_center, bgcolor = color.navy, text_color = color.white, text_size = size.small)
+    table.cell(tbl, 1, 0, 'Timeframe',                      text_halign = text.align_center, bgcolor = color.navy, text_color = color.white, text_size = size.small)
+    table.cell(tbl, 2, 0, 'Price',                          text_halign = text.align_center, bgcolor = color.navy, text_color = color.white, text_size = size.small)
+    table.cell(tbl, 3, 0, 'RSI',                            text_halign = text.align_center, bgcolor = color.navy, text_color = color.white, text_size = size.small)
+    table.cell(tbl, 4, 0, 'K Value',                        text_halign = text.align_center, bgcolor = color.navy, text_color = color.white, text_size = size.small)
+    table.cell(tbl, 5, 0, 'D Value',                        text_halign = text.align_center, bgcolor = color.navy, text_color = color.white, text_size = size.small)
 
-    for i = 0 to 2
-        if array.get(t_arr, i)
-        
+    for i = 0 to array.size(s_arr) - 1
+        if array.get(sb_arr, i)  
             rsi_col  = array.get(rsi_arr, i) > rsi_ob    ? color.red   : array.get(rsi_arr, i) < rsi_os ? color.green : #aaaaaa
             k_col  = array.get(k_arr, i) > stoch_high    ? color.red   : array.get(k_arr, i) < stoch_low ? color.green : #aaaaaa
             d_col  = array.get(d_arr, i) > stoch_high    ? color.red   : array.get(d_arr, i) < stoch_low ? color.green : #aaaaaa
-            str = array.get(tfs, i)
-            if str.contains(array.get(tfs, i),"60")
-                str := "1H"
-            else if str.contains(array.get(tfs, i),"120")
-                str := "2H"
-            else if str.contains(array.get(tfs, i),"180")
-                str := "3H"
-            else if str.contains(array.get(tfs, i),"240")
-                str := "4H"
-            else if str.contains(array.get(tfs, i),"720")
-                str := "12H"
             
-            table.cell(tbl, 0, i + 2, str,               text_halign = text.align_center, bgcolor = #FFA500, text_color = color.navy, text_size = size.small)
-            table.cell(tbl, 1, i + 2, str.tostring(array.get(candle_arr, i)),                  text_halign = text.align_center, bgcolor = #aaaaaa,    text_color = color.white, text_size = size.small)
-            table.cell(tbl, 2, i + 2, str.tostring(array.get(rsi_arr, i), "#.##"),         text_halign = text.align_center, bgcolor = rsi_col,    text_color = color.white, text_size = size.small)
-            table.cell(tbl, 3, i + 2, str.tostring(array.get(k_arr, i), "#.##"),         text_halign = text.align_center, bgcolor = k_col,    text_color = color.white, text_size = size.small)
-            table.cell(tbl, 4, i + 2, str.tostring(array.get(d_arr, i), "#.##"),         text_halign = text.align_center, bgcolor = d_col,    text_color = color.white, text_size = size.small)
+            table.cell(tbl, 0, i + 1, array.get(s_arr, i),                               text_halign = text.align_center,   bgcolor = #FFA500, text_color = color.navy, text_size = size.small)
+            table.cell(tbl, 1, i + 1, transform(array.get(t_arr, i)),                    text_halign = text.align_center,   bgcolor = #FFA500, text_color = color.navy, text_size = size.small)
+            table.cell(tbl, 2, i + 1, str.tostring(array.get(p_arr, i)),                 text_halign = text.align_center, bgcolor = #aaaaaa,    text_color = color.white, text_size = size.small)
+            table.cell(tbl, 3, i + 1, str.tostring(array.get(rsi_arr, i), "#.##"),       text_halign = text.align_center, bgcolor = rsi_col,    text_color = color.white, text_size = size.small)
+            table.cell(tbl, 4, i + 1, str.tostring(array.get(k_arr, i), "#.##"),         text_halign = text.align_center, bgcolor = k_col,    text_color = color.white, text_size = size.small)
+            table.cell(tbl, 5, i + 1, str.tostring(array.get(d_arr, i), "#.##"),         text_halign = text.align_center, bgcolor = d_col,    text_color = color.white, text_size = size.small)
+
+    for i = 0 to array.size(s_arr) - 1
+        if i % 3 == 0
+            if array.get(sb_arr, i)
+                table.merge_cells(tbl,0,i+1,0,i+3)
