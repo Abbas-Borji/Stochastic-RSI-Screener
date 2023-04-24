@@ -8,6 +8,9 @@ It gives users the ability to choose 5 specific symbols (the number is optional)
 
 This script shows values of (CURRENT PRICE, RSI , K-VALUE, D-VALUE) for each one of the specified symbols on each of the chosen timeframes.
 
+# Final Version
+[Check the Real Indicator](https://www.tradingview.com/script/IGpEtvup-Multi-Timeframe-Stochastic-RSI-Screener/)
+
 # Screener on Chart
 ![alt text](https://github.com/Abbas-Borji/Stochastic-RSI-Screener/blob/main/Screenshots/Five%20Symbols%20Three%20TimeFrames%20(Design-Enhanced).png?raw=true)
 
